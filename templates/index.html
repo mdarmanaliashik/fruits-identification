@@ -3,142 +3,367 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Quality AI Dashboard</title>
+    <title>AI Fruit Quality Inspector</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(16, 185, 129, 0.10), transparent 30%),
+                radial-gradient(circle at top right, rgba(6, 182, 212, 0.10), transparent 28%),
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 45%, #f0fdf4 100%);
+            min-height: 100vh;
         }
-        #imagePreview {
-            max-height: 300px;
+
+        .hero-bg {
+            background: linear-gradient(135deg, #0f172a 0%, #14532d 45%, #0f766e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-bg::before,
+        .hero-bg::after {
+            content: "";
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(70px);
+            opacity: 0.22;
+        }
+
+        .hero-bg::before {
+            width: 260px;
+            height: 260px;
+            background: #34d399;
+            top: -60px;
+            left: -60px;
+        }
+
+        .hero-bg::after {
+            width: 320px;
+            height: 320px;
+            background: #67e8f9;
+            right: -100px;
+            bottom: -100px;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        .premium-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.94) 100%);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+        }
+
+        .upload-box {
+            transition: all 0.3s ease;
+            border: 2px dashed #cbd5e1;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .upload-box:hover {
+            border-color: #10b981;
+            background: linear-gradient(180deg, #f0fdf4 0%, #ecfeff 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 36px rgba(16, 185, 129, 0.14);
+        }
+
+        .drop-active {
+            border-color: #10b981 !important;
+            background: linear-gradient(180deg, #ecfdf5 0%, #f0fdfa 100%) !important;
+            transform: scale(1.01);
+            box-shadow: 0 18px 36px rgba(16, 185, 129, 0.18);
+        }
+
+        #imagePreviewRight {
+            width: 100%;
+            max-height: 430px;
             object-fit: contain;
+            border-radius: 22px;
+            background: #f8fafc;
         }
-        .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 15px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .info-chip {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #e2e8f0;
+            border-radius: 999px;
+            padding: 9px 15px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #0f172a 0%, #166534 55%, #0f766e 100%);
+            box-shadow: 0 16px 28px rgba(15, 23, 42, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 36px rgba(15, 23, 42, 0.22);
+        }
+
+        .mini-stat {
+            background: rgba(255,255,255,0.92);
+            border: 1px solid rgba(226,232,240,0.9);
+            box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+        }
+
+        .fruit-emoji {
+            font-size: 2rem;
+            line-height: 1;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .floating-icon {
+            animation: floaty 3s ease-in-out infinite;
+        }
+
+        @keyframes floaty {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shine::after {
+            content: "";
+            position: absolute;
+            top: -120%;
+            left: -40%;
+            width: 40%;
+            height: 300%;
+            background: rgba(255,255,255,0.18);
+            transform: rotate(25deg);
+            pointer-events: none;
+        }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans">
+<body class="min-h-screen font-sans text-slate-800">
 
-    <header class="gradient-bg text-white py-10 shadow-lg mb-10">
-        <div class="container mx-auto text-center">
-            <h1 class="text-4xl font-bold mb-2"><i class="fas fa-apple-alt mr-3"></i>AI Food Quality Inspector</h1>
-            <p class="text-lg opacity-90">Machine Learning based Fresh & Rotten Food Identification</p>
-        </div>
-    </header>
+    <header class="hero-bg text-white pt-14 pb-20 mb-10 shadow-2xl">
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                <div>
+                    <div class="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2 text-sm font-medium mb-6 backdrop-blur-sm">
+                        <i class="fas fa-sparkles text-yellow-300"></i>
+                        AI Fruit Inspection
+                    </div>
 
-    <main class="container mx-auto px-4 max-w-4xl">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div class="bg-white p-8 rounded-2xl shadow-md">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Upload Image</h2>
-                <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-indigo-500 transition">
-                    <input type="file" id="imageInput" class="hidden" accept="image/*">
-                    <label for="imageInput" class="cursor-pointer">
-                        <i class="fas fa-cloud-upload-alt text-4xl text-indigo-500 mb-3"></i>
-                        <p class="text-gray-500">Click to upload or drag and drop</p>
-                        <p class="text-xs text-gray-400 mt-1">Supports: JPG, PNG, AVIF</p>
-                    </label>
-                </div>
-                <button id="predictBtn" class="w-full mt-6 bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition flex justify-center items-center shadow-lg">
-                    <span>Analyze Food</span>
-                </button>
-            </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-5">
+                        AI Fruit Quality
+                        <span class="text-emerald-300">Inspector</span>
+                    </h1>
 
-            <div class="bg-white p-8 rounded-2xl shadow-md flex flex-col items-center justify-center min-h-[350px]">
-                <div id="previewContainer" class="hidden w-full text-center">
-                    <h2 class="text-lg font-semibold mb-4 text-gray-700">Image Preview</h2>
-                    <img id="imagePreview" src="#" alt="Preview" class="rounded-lg mx-auto shadow-sm mb-4">
-                    
-                    <div id="resultBox" class="hidden mt-4 p-4 rounded-xl border-2">
-                        <p class="text-sm uppercase tracking-widest text-gray-500 font-bold">Analysis Result</p>
-                        <h3 id="predictionText" class="text-2xl font-black mt-1">---</h3>
+                    <p class="text-lg md:text-xl text-white/85 leading-relaxed mb-7 max-w-2xl">
+                        Upload a fruit image and get a fast, elegant freshness analysis powered by machine learning for
+                        <span class="font-semibold text-emerald-300">fresh</span> and
+                        <span class="font-semibold text-rose-200">rotten</span>
+                        fruit detection.
+                    </p>
+
+                    <div class="flex flex-wrap gap-3 mb-7">
+                        <span class="badge">🍎 Apple</span>
+                        <span class="badge">🍌 Banana</span>
+                        <span class="badge">🍊 Orange</span>
                     </div>
                 </div>
 
-                <div id="emptyState" class="text-center text-gray-400">
-                    <i class="fas fa-microscope text-5xl mb-3"></i>
-                    <p>Analysis results will appear here</p>
+                <div class="hidden lg:flex justify-end">
+                    <div class="glass-card rounded-[2rem] p-8 w-full max-w-md shine">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <p class="text-sm uppercase tracking-[0.2em] text-slate-500 font-semibold">Preview Panel</p>
+                                <h3 class="text-2xl font-bold text-slate-800 mt-1">Supported Fruits</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 text-white flex items-center justify-center shadow-lg">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div class="premium-card rounded-2xl p-4">
+                                <span class="fruit-emoji">🍎</span>
+                                <p class="text-sm font-semibold">Apple</p>
+                            </div>
+                            <div class="premium-card rounded-2xl p-4">
+                                <span class="fruit-emoji">🍌</span>
+                                <p class="text-sm font-semibold">Banana</p>
+                            </div>
+                            <div class="premium-card rounded-2xl p-4">
+                                <span class="fruit-emoji">🍊</span>
+                                <p class="text-sm font-semibold">Orange</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-100 rounded-2xl p-4">
+                            <p class="text-sm text-slate-600">
+                                <i class="fas fa-bolt text-emerald-600 mr-2"></i>
+                                An intuitive interface featuring instant previews and seamless uploading
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </header>
 
-        <div class="mt-12 flex justify-center pb-10">
-            <div class="bg-green-50 p-6 rounded-xl border border-green-100 flex items-center max-w-md shadow-sm">
-                <i class="fas fa-check-circle text-green-600 text-3xl mr-4"></i>
-                <div>
-                    <h4 class="font-bold text-lg">Multi-Class Support</h4>
-                    <p class="text-sm text-gray-600">Optimized for Apples, Bananas, and Oranges</p>
+    <main class="max-w-7xl mx-auto px-4 pb-14">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left Upload -->
+            <div class="glass-card rounded-[2rem] p-8 lg:p-10">
+                <div class="mb-7">
+                    <p class="text-sm uppercase tracking-[0.22em] text-emerald-700 font-semibold mb-2">Upload Center</p>
+                    <h2 class="text-3xl lg:text-4xl font-bold text-slate-800 mb-3">Upload Fruit Image</h2>
+                    <p class="text-slate-500 leading-relaxed max-w-xl">
+                        Choose a clear image of an apple, banana, or orange to analyze its freshness condition through the AI inspection system.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-7">
+                    <span class="info-chip"><i class="fas fa-image text-emerald-600 mr-2"></i> JPG / PNG / JPEG</span>
+                    <span class="info-chip"><i class="fas fa-brain text-cyan-600 mr-2"></i> ML Powered</span>
+                    <span class="info-chip"><i class="fas fa-shield-check text-green-600 mr-2"></i> Secure Upload</span>
+                </div>
+
+                <form action="/predict" method="POST" enctype="multipart/form-data">
+                    <div id="dropArea" class="upload-box rounded-[1.75rem] p-8 md:p-12 text-center cursor-pointer">
+                        <input type="file" name="image" id="imageInput" class="hidden" accept="image/*" required>
+
+                        <label for="imageInput" class="cursor-pointer block">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-24 h-24 rounded-full bg-gradient-to-br from-emerald-100 to-cyan-100 flex items-center justify-center shadow-inner mb-5 floating-icon">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-emerald-700"></i>
+                                </div>
+                                <p class="text-2xl md:text-3xl font-bold text-slate-700">Click to Upload</p>
+                                <p class="text-sm text-slate-500 mt-2">or drag and drop your fruit image here</p>
+                                <p class="text-xs text-slate-400 mt-4">Supports 🍎 Apple, 🍌 Banana, and 🍊 Orange</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="predict-btn w-full mt-7 text-white py-4 rounded-[1.25rem] font-bold text-lg">
+                        <i class="fas fa-magnifying-glass-chart mr-2"></i>
+                        Predict Fruit Condition
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Preview -->
+            <div class="glass-card rounded-[2rem] p-8 lg:p-10 min-h-[520px] flex items-center justify-center">
+                <div id="placeholderContent" class="text-center max-w-md mx-auto">
+                    <div class="w-28 h-28 rounded-full bg-gradient-to-br from-emerald-100 via-cyan-100 to-sky-100 flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <i class="fas fa-image text-5xl text-emerald-600 floating-icon"></i>
+                    </div>
+
+                    <p class="text-sm uppercase tracking-[0.22em] text-slate-500 font-semibold mb-2">Live Preview</p>
+                    <h3 class="text-3xl font-bold text-slate-800 mb-3">Uploaded Image</h3>
+
+                    <p class="text-slate-500 leading-relaxed">
+                        Your uploaded fruit image will appear here before prediction.
+                    </p>
+                </div>
+
+                <div id="resultPreviewWrapper" class="hidden w-full">
+                    <div class="premium-card rounded-[1.75rem] p-4 md:p-5">
+                        <div class="flex items-center justify-between gap-4 mb-4">
+                            <div>
+                                <p class="text-sm uppercase tracking-[0.18em] text-slate-500 font-semibold">Image Preview</p>
+                                <h4 class="text-xl font-bold text-slate-800 mt-1">Selected File</h4>
+                            </div>
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-900 to-emerald-700 text-white flex items-center justify-center shadow-md">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+
+                        <img id="imagePreviewRight" src="#" alt="Uploaded Fruit Preview">
+
+                        <div class="mt-4 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-3">
+                            <p id="imagePathText" class="text-center text-sm text-slate-600 break-all"></p>
+                        </div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </main>
 
     <script>
         const imageInput = document.getElementById('imageInput');
-        const imagePreview = document.getElementById('imagePreview');
-        const previewContainer = document.getElementById('previewContainer');
-        const emptyState = document.getElementById('emptyState');
-        const predictBtn = document.getElementById('predictBtn');
-        const resultBox = document.getElementById('resultBox');
-        const predictionText = document.getElementById('predictionText');
+        const imagePreviewRight = document.getElementById('imagePreviewRight');
+        const resultPreviewWrapper = document.getElementById('resultPreviewWrapper');
+        const placeholderContent = document.getElementById('placeholderContent');
+        const dropArea = document.getElementById('dropArea');
+        const imagePathText = document.getElementById('imagePathText');
 
-        imageInput.onchange = evt => {
-            const [file] = imageInput.files;
-            if (file) {
-                imagePreview.src = URL.createObjectURL(file);
-                previewContainer.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-                resultBox.classList.add('hidden');
-            }
+        function showPreview(file) {
+            if (!file) return;
+
+            const imageURL = URL.createObjectURL(file);
+            imagePreviewRight.src = imageURL;
+            imagePathText.textContent = file.name;
+
+            placeholderContent.classList.add('hidden');
+            resultPreviewWrapper.classList.remove('hidden');
         }
 
-        predictBtn.onclick = async () => {
-            if (imageInput.files.length === 0) {
-                alert("Please select an image first!");
-                return;
+        imageInput.addEventListener('change', () => {
+            const file = imageInput.files[0];
+            showPreview(file);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.add('drop-active');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropArea.classList.remove('drop-active');
+            });
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                imageInput.files = files;
+                showPreview(files[0]);
             }
-
-            const formData = new FormData();
-            formData.append('file', imageInput.files[0]);
-
-            predictBtn.disabled = true;
-            predictBtn.innerHTML = '<div class="loading-spinner"></div>';
-
-            try {
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-
-                if (data.prediction) {
-                    resultBox.classList.remove('hidden');
-                    predictionText.innerText = data.prediction;
-                    
-                    if (data.prediction.toLowerCase().includes('fresh')) {
-                        resultBox.className = "mt-4 p-4 rounded-xl border-2 border-green-500 bg-green-50 text-green-700";
-                    } else {
-                        resultBox.className = "mt-4 p-4 rounded-xl border-2 border-red-500 bg-red-50 text-red-700";
-                    }
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert("Something went wrong with the server.");
-            } finally {
-                predictBtn.disabled = false;
-                predictBtn.innerHTML = '<span>Analyze Food</span>';
-            }
-        };
+        });
     </script>
 </body>
 </html>
